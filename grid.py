@@ -1,56 +1,14 @@
-from typing import List, NamedTuple, Optional
+from agent import Agent
+from typing import List
+from position import Position
 import random
 
+#### this is just printing the dictionary bc it is just not working for me
+def printDict(my_dictionary) -> str:
+    string = ""
+    for key in my_dictionary:
 
-class Agent:
-    ''' class for each of the individual agents in the simulation
-    allows us to store information about each agent inside the object
-    '''
-    def __init__(self, ID, location):
-        self._ID = ID         # probably can just be a number
-        self._position = location   # row col position of the cell the agent is in
-        self._information = None
-
-        # things we can change later -- should add rates later
-        self._new_info_rate = None  # the chance each agent has of generating
-                                        # new information
-        self._spread_radius = 2  # the radius outside the cell information
-                                        # can spread
-        self._acceptance_rate = None # how likely an agent is to accept new
-                                        # information
-
-    def __eq__(self, other: 'Agent') -> bool:
-        ''' Boolean method to indicate whether a given Agent is equal to this agent
-        Returns:
-            True if this agent and the other agent are the same, False o/w
-        '''
-        return self._position.row == other._position.row and \
-               self._position.col == other._position.col and \
-               self._ID == other._ID
-
-    def __str__(self) -> None:
-        ''' creates str version of agent object '''
-        return f"Agent {str(self._ID)}, Location: ({self._position.row}, {self._position.col})"
-
-class Information:
-    ''' allows us to use information as a class
-    might be useful later if we want to have different kinds of information
-    with different characterists
-    '''
-    # how are we doing information in the base case? since there is only one kind
-    # of information right now, do we represent information as an integer value if
-    # an agent has more than one 'information'
-    # or do we have give a name to each piece of generated information and store
-    # them seperately?
-    pass
-
-class Position(NamedTuple):
-    ''' just allows us to use .row and .col rather than the less-easy-to-read
-        [0] and [1] for accessing values
-        yoinked this from the last class i had with Barry
-    '''
-    row: int
-    col: int
+        print(f"{key}: {my_dictionary[key]}")
 
 class Cell:
     ''' might not need this class but it could make it easier
@@ -73,8 +31,7 @@ class Cell:
                 print(a._ID)
                 contents += "Agent " + str(a._ID)
         return f"({self._position.row}, {self._position.col}): {contents} "
-
-
+    
 class Grid:
     ''' class representing a 2-D list of cell objects'''
 
@@ -139,19 +96,19 @@ class Grid:
                     agents.append(a)
         else:
             # row_start
-            if origin._position.row - origin._spread_radius < 0:
+            if origin._position.row - origin._spread_radius < 0:                #When edge
                 row_start = 0
             else: row_start = origin._position.row - origin._spread_radius
             # row_end
-            if origin._position.row + origin._spread_radius > self._num_rows:
+            if origin._position.row + origin._spread_radius > self._num_rows:   #When edge
                 row_end = self._num_rows
             else: row_end = origin._position.row + origin._spread_radius + 1
             # col_start
-            if origin._position.col - origin._spread_radius < 0:
+            if origin._position.col - origin._spread_radius < 0:                #When edge
                 col_start = 0
             else: col_start = origin._position.col - origin._spread_radius
             # col_end
-            if origin._position.col + origin._spread_radius > self._num_cols:
+            if origin._position.col + origin._spread_radius > self._num_cols:   #When edge
                 col_end = self._num_cols
             else: col_end = origin._position.col + origin._spread_radius + 1
 
@@ -184,40 +141,3 @@ class Grid:
         ''' method to find agent in object in grid using ID number
         '''
         return self._agents[ID]
-
-#### this is just printing the dictionary bc it is just not working for me
-def printDict(my_dictionary) -> str:
-    string = ""
-    for key in my_dictionary:
-
-        print(f"{key}: {my_dictionary[key]}")
-
-def main():
-    random.seed(42)
-    g = Grid()
-    print(g)
-
-    ################# testing addAgent
-    p = Position(1,1)
-    g._addAgent(p)
-    print(len(g._agents))
-    print(g)
-
-    #agent30 = g._findAgent(30)
-    #print(g._agentsInRange(agent30)[0])
-    ############## testing agentInRange when spread radius is 1
-    agent9 = g._findAgent(9)
-    p2 = Position(1,3)
-    g._addAgent(p2)
-    #test = g._agentsInRange(agent9)
-    #for a in test:
-        #print(a)
-
-    ############ testing agentInRange when spread radius is 2
-    test = g._agentsInRange(agent9)
-    for a in test:
-        print(a)
-
-
-
-main()
