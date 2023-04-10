@@ -40,8 +40,8 @@ class Grid:
     def __init__(self, rows: int = 10, cols: int = 10, prop_agents: float = 0.3):
         ''' initializer method for grid object
         Parameters:
-            num_rows:           number of rows in the grid
-            num_cols:           number of columns in the grid
+            num_rows:       number of rows in the grid
+            num_cols:       number of columns in the grid
             prop_agents:    proportion of cells that will contain an agent when
                             the grid is created
         '''

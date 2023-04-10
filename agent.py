@@ -19,9 +19,9 @@ class Agent:
         self._position = location
         self._information = None
         # things we can change later -- should add rates later
-        self._prob_gen_inf = None
-        self._prob_accept_inf = None 
-        self.prob_repeat_inf = None 
+        self._prob_gen_inf = .05
+        self._prob_accept_inf = .4
+        self._prob_repeat_inf = .1 
         self._spread_radius = 2 
 
 
