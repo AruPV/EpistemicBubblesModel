@@ -1,19 +1,29 @@
 class Agent:
     ''' class for each of the individual agents in the simulation
     allows us to store information about each agent inside the object
+
+    Parameters:
+        ID: The ID of the agent
+        _position: Holds the position of the cell the agent is in.
+            It's a location object.
+        _prob_gen_inf: Probability that the agent will generate
+            information in a given loop
+        _prob_accept_inf: Probability that the agent will accept
+            information it
+        _prob_repeat_inf: Probability that the agent will repeat
+            information after getting accepted
+        _spread_radius: Radius at which the agent will spread information
     '''
     def __init__(self, ID, location):
-        self._ID = ID         # probably can just be a number
-        self._position = location   # row col position of the cell the agent is in
+        self._ID = ID 
+        self._position = location
         self._information = None
-
         # things we can change later -- should add rates later
-        self._new_info_rate = None  # the chance each agent has of generating
-                                        # new information
-        self._spread_radius = 2  # the radius outside the cell information
-                                        # can spread
-        self._acceptance_rate = None # how likely an agent is to accept new
-                                        # information
+        self._prob_gen_inf = None
+        self._prob_accept_inf = None 
+        self.prob_repeat_inf = None 
+        self._spread_radius = 2 
+
 
     def __eq__(self, other: 'Agent') -> bool:
         ''' Boolean method to indicate whether a given Agent is equal to this agent

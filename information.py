@@ -16,5 +16,4 @@ class Information:
 
     origin: Position
 
-
     pass
