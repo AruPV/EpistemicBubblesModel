@@ -33,6 +33,21 @@ def main():
     test = g._agentsInRange(agent9)
     for a in test:
         print(a)
+    
+    ########## testing algorithm
+    print("### TESTING ALGORITHM")
+
+    #agent12 = g._findAgent(12)
+    #test = g._agentsInRange(agent12)
+    agent_ = g._findAgent(12)   #25
+    #print(agent_)
+    test = g._agentsInRange(agent_)
+    for a in test:
+        print(a)
+
+    print(g)
+    random.seed(40)
+    g.simulate(1)
 
 
 
