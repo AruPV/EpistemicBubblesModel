@@ -83,7 +83,8 @@ class Grid:
 
     #########################################################
 
-    def _moveAgent(self):
+    def _moveAgent(self, agent: agent.Agent):
+        self._agents
         pass
 
     #########################################################
