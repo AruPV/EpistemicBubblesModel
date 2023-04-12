@@ -77,7 +77,7 @@ class Grid:
     def _moveAgent(self):
         pass
 
-    def _agentsInRange(self, origin: Agent) -> List:
+    def agentsInRange(self, origin: Agent) -> List:
         ''' method to return a list of all the agents in within the spread radius
         of the the inputted agent
         Parameters:
