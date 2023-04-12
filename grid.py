@@ -1,4 +1,4 @@
-from agent import Agent
+import agent
 from typing import List
 from position import Position
 import random
@@ -10,15 +10,17 @@ def printDict(my_dictionary) -> str:
 
         print(f"{key}: {my_dictionary[key]}")
 
+##################################################################################################################
 class Cell:
     ''' might not need this class but it could make it easier
     allows us to use Cell as a data type and store agents inside of it
     '''
+    #########################################################
     def __init__(self, row: int, col: int):
         self._position:  Position = Position(row, col)
         self._contents = []     # im representing an empty cell as an empty list
                                     # for now
-
+    #########################################################
     def __str__(self):
         ''' creates and returns a string representation of this cell
         Returns:
@@ -31,11 +33,14 @@ class Cell:
                 print(a._ID)
                 contents += "Agent " + str(a._ID)
         return f"({self._position.row}, {self._position.col}): {contents} "
-    
+
+################################################################################################################## 
 class Grid:
     ''' class representing a 2-D list of cell objects'''
 
     slots = ('_num_rows', '_num_cols', '_agents')
+
+    #########################################################
 
     def __init__(self, rows: int = 10, cols: int = 10, prop_agents: float = 0.3):
         ''' initializer method for grid object
@@ -60,11 +65,13 @@ class Grid:
             #create agent with an id and store cell location inside of it
             # append that agent object to cell contents
             name = len(self._agents) + 1
-            new_agent = Agent(name, i._position)
+            new_agent = agent.Agent(name, i._position)
             i._contents.append(new_agent)
             self._agents[name] = new_agent
             print(i)
         printDict(self._agents)
+
+    #########################################################
 
     def __str__(self) -> None:
         ''' creates a str version of the grid that shows each cell and the
@@ -74,10 +81,14 @@ class Grid:
             maze_str += "|" + "|".join([str(len(cell._contents)) for cell in row]) + "|\n"
         return maze_str[:-1]  # remove the final \n
 
+    #########################################################
+
     def _moveAgent(self):
         pass
 
-    def agentsInRange(self, origin: Agent) -> List:
+    #########################################################
+
+    def agentsInRange(self, origin: agent.Agent) -> List:
         ''' method to return a list of all the agents in within the spread radius
         of the the inputted agent
         Parameters:
@@ -121,6 +132,8 @@ class Grid:
                         agents.append(a)
         return agents
 
+    #########################################################
+    
     def _addAgent(self, position: Position) -> None:
         # do we need this one? not sure
         # also if we we're going to do this, might want to change it so that the
@@ -133,9 +146,11 @@ class Grid:
         Returns:
             None
         '''
-        new_agent = Agent(len(self._agents) + 1, position)
+        new_agent = agent.Agent(len(self._agents) + 1, position)
         self._agents[len(self._agents) + 1] = new_agent
         self._grid[position.row][position.col]._contents.append(new_agent)
+
+    #########################################################   
 
     def _findAgent(self, ID):
         ''' method to find agent in object in grid using ID number

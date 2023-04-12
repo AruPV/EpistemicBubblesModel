@@ -1,6 +1,5 @@
 import random
 from information import Information
-from grid import Grid
 
 class Agent:
     ''' class for each of the individual agents in the simulation
@@ -20,19 +19,22 @@ class Agent:
         _spread_radius: Radius at which the agent will spread information
         _grif: grid which the agent belongs to
     '''
-    def __init__(self, ID, location, grid: Grid):
+    #########################################################
+
+    def __init__(self, ID, location, grid):
         self._ID = ID
         self._grid = grid
         self._position = location
-        self._information = None
+        self._information = {}
         # things we can change later -- should add rates later
         self._prob_gen_inf = .05
         self._prob_accept_inf = .4
         self._prob_reshare_inf = .1 
         self._spread_radius = 2
 
+    #########################################################
 
-    def isInfGen(self, ) -> bool:
+    def _isInfGen(self, ) -> bool:
         ''' Check if information will be generated
         Returns:
             Bool, whether or not information is to be generated
@@ -43,7 +45,9 @@ class Agent:
             is_gen = True
         return is_gen
     
-    def isInfAccept(self) -> bool:
+    #########################################################
+
+    def _isInfAccept(self) -> bool:
         ''' Check if information will be accepted
         Returns:
             Bool, whether or not information is to be accepted
@@ -53,8 +57,10 @@ class Agent:
         if self._prob_accept_inf > prob_roll:
             is_accept = True
         return is_accept
-    
-    def isInfReshared(self) -> bool:
+
+    #########################################################
+
+    def _isInfReshared(self) -> bool:
         ''' Check if information will be reshared
         Returns:
             Bool, whether or not information is to be reshared
@@ -65,6 +71,23 @@ class Agent:
             is_reshared = True
         return is_reshared
 
+    #########################################################
+
+    def _move(self, information: Information) -> None:
+        
+        return
+
+    #########################################################
+    
+    def _shareInf(self) -> None:
+        import grid   #import statement is here because python was angry about circular imports
+        agents_in_range = self._grid.agentsInRange(origin = self)
+        for agent in agents_in_range:
+            agent.receiveInf()
+        return
+    
+    #########################################################
+
     def receiveInf(self, information: Information) -> None:
         ''' Receives information from other agents
         Parameters:
@@ -72,14 +95,19 @@ class Agent:
         Returns:
             Nothing
         '''
+
+        if information.ID in self._information: return          #Fail state (information already received)
+        self._information.update({information.ID: information}) #Update information dict
+        if ~self._isInfAccept: return                           #Fail state (won't accept information)
+
+                        ##Information is accepted##
+
+        self._move(information)                                 #Move
+        if self._isInfReshared: self._shareInf                  #reshare info if it will be reshared
+
         return
 
-    def shareInf(self) -> None:
-        agents_in_range = self._grid.agentsInRange(origin = self)
-        for agent in agents_in_range:
-            agent.receiveInf()
-
-        return
+    #########################################################
 
     def __eq__(self, other: 'Agent') -> bool:
         ''' Boolean method to indicate whether a given Agent is equal to this agent
@@ -89,6 +117,8 @@ class Agent:
         return self._position.row == other._position.row and \
                self._position.col == other._position.col and \
                self._ID == other._ID
+
+    #########################################################
 
     def __str__(self) -> None:
         ''' creates str version of agent object '''
