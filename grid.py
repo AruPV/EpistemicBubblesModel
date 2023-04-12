@@ -2,6 +2,7 @@ import agent
 from typing import List
 from position import Position
 import random
+from information import Information
 
 #### this is just printing the dictionary bc it is just not working for me
 def printDict(my_dictionary) -> str:
@@ -160,7 +161,7 @@ class Grid:
     
     #########################################################
     
-     def simulate(self, runs: int):
+    def simulate(self, runs: int):
         ''' function to simulate the the spread of information
         runs: the number of times to cycle through the sim
 
