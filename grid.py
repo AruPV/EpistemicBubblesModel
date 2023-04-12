@@ -111,7 +111,7 @@ class Grid:
                 row_start = 0
             else: row_start = origin._position.row - origin._spread_radius
             # row_end
-            if origin._position.row + origin._spread_radius > self._num_rows:   #When edge
+            if origin._position.row + origin._spread_radius >= self._num_rows:   #When edge
                 row_end = self._num_rows
             else: row_end = origin._position.row + origin._spread_radius + 1
             # col_start
@@ -119,7 +119,7 @@ class Grid:
                 col_start = 0
             else: col_start = origin._position.col - origin._spread_radius
             # col_end
-            if origin._position.col + origin._spread_radius > self._num_cols:   #When edge
+            if origin._position.col + origin._spread_radius >= self._num_cols:   #When edge
                 col_end = self._num_cols
             else: col_end = origin._position.col + origin._spread_radius + 1
 
@@ -156,3 +156,62 @@ class Grid:
         ''' method to find agent in object in grid using ID number
         '''
         return self._agents[ID]
+    
+    #########################################################
+    
+     def simulate(self, runs: int):
+        ''' function to simulate the the spread of information
+        runs: the number of times to cycle through the sim
+
+        each run starts with a chance for all agents in the grid to generate
+        information. then, for each of the agents that have generated new
+        information, each agent within the spread radius has a chance of accepting
+        the information
+        '''
+        # Call grid to generate a “turn” list
+        g_copy = [cell for row in self._grid for cell in row]
+        agents = []     # im going to store stuff as a tuple
+        for c in g_copy:
+            if c.isEmpty() == False:
+                for a in c._contents:
+                    if random.random() <= a._prob_gen_inf:
+                        name = len(self._information) + 1
+                        info = Information(a._position, name)
+                        self._information[name] = info
+                        a._information.append(info)
+                        if random.random() <= a._prob_repeat_inf:   # share information
+                            agents.append([a, info])
+                            print(f"{a} shares the information")
+                        else:
+                            print(f"{a} doesn't share the information")
+
+        # Agent action loop, for each agent in turn list
+        # Check if information will be generated (.1)
+        # If information is generated, then get list of agents in radius from grid
+        while len(agents) > 0:
+            print(f"Agents in radius of {agents[0][0]}:")
+            in_range = self._agentsInRange(agents[0][0])
+            info = agents[0][1]
+            agents.pop(0)
+            for r in in_range:
+                if info not in r._information:  # check if the agents has the info
+                    if random.random() <= r._prob_accept_inf:
+                        print(f"{r} accepts the information")
+                        r._information.append(info)
+                        if random.random() <= r._prob_repeat_inf:
+                            print("     decides to share")
+                            agents.append([r, info])
+                    else:
+                        print(f"{r} rejects the information")
+
+
+        # Call each agent in that list to see if they accept the information
+            # Check that the agent has not received this information already, if they did, then next.
+            # When agent receives information, add to their list of received information
+            # If not accepted, then return
+            # If accepted
+                # Move closer to idea origin
+                # If they don't spread it again, return (.1)
+                # If they do
+                # Call b.ii again
+            # Next
