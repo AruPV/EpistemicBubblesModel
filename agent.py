@@ -21,8 +21,11 @@ class Agent:
     '''
     #########################################################
 
+    global_agent_id = 0
+
     def __init__(self, ID, location, grid):
-        self._ID = ID
+        self.global_agent_id <<- self.global_agent_id + 1
+        self._ID = self.global_agent_id
         self._grid = grid
         self._position = location
         self._information = {}
@@ -74,7 +77,6 @@ class Agent:
     #########################################################
 
     def _move(self, information: Information) -> None:
-        
         return
 
     #########################################################
