@@ -190,8 +190,15 @@ class Grid:
     def _tryShare(self, target_agent: agent.Agent, information: Information):
         '''
 
-        First reshares, then moves
+        First reshares, then moves. It calls the receiveInf method on the target agent, which
+        returns two different values in a dictionary. Resharing happens first, and then moving is dealt with.
+        Refer to documentation for more information on this decision and its ramifications for the results.
+
+        Paremeters:
+            target_agent: The agent on which sharing of information will be attempted
+            information: The information which will be tried to share with the agent
         '''
+        target_agent.receiveInf(information = information)      #Share information with target agent
 
         self.move
 
@@ -203,13 +210,13 @@ class Grid:
         
         '''
 
-        info_generated = origin_agent.isInfGen()               #Generate info if it will be generated
-        if(info_generated == False): return             #If information will not be generated, return
+        info_generated = origin_agent.isInfGen()                #Generate info if it will be generated
+        if(info_generated == False): return                     #If information will not be generated, return
         
         #If it is generated, then:
-        share_list = self.agentsInRange(origin_agent)          #Get list of agents with whom info will be shared
+        share_list = self.agentsInRange(origin_agent)           #Get list of agents with whom info will be shared
         for agent in share_list:
-            self._tryShare(agent)
+            self._tryShare(agent)                               #Try to share it with them
         return
     
     #########################################################

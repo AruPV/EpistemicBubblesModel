@@ -8,7 +8,6 @@ class Information:
     '''
 
     def __init__(self, origin_cell) -> None:
-        Information.information_generated += 1
         self.origin = origin_cell
         pass
 

@@ -1,4 +1,4 @@
-import random
+from random import random
 from information import Information
 
 class Agent:
@@ -22,15 +22,15 @@ class Agent:
 
     global_agent_id = 0
 
-    def __init__(self, ID, cell):
+    def __init__(self, cell):
         self.global_agent_id <<- self.global_agent_id + 1
         self._ID = self.global_agent_id
         self.cell = cell
-        self._information = {}
+        self._information = []
         # things we can change later -- should add rates later
         self._prob_gen_inf = .05
         self._prob_accept_inf = .4
-        self._prob_reshare_inf = .1 
+        self._prob_reshare_inf = .3 
         self.spread_radius = 2
 
     #########################################################
@@ -70,7 +70,8 @@ class Agent:
         '''
         is_reshared = False
         prob_roll = random()
-        if self._prob_repeat_inf > prob_roll:
+        print(prob_roll)
+        if self._prob_reshare_inf > prob_roll:
             is_reshared = True
         return is_reshared
 
@@ -91,17 +92,21 @@ class Agent:
             "Is_accepted": Whether or not it's accepted
             "Is_reshared": Whether or not it's reshared
         '''
-        return_dict = {"is_accepted": True, "is_reshared": True}
+        return_dict = {"is_accepted": False, "is_reshared": False}                  #Instantiate return value
 
-        if information.ID in self._information: return_dict["is_accepted"] = False  #Is information in received already
-        self._information.update({information.ID: information})                     #Update information dict
-        if ~self._isInfAccept: return False                                         #If information accepted
+        #Is it accepted at all?
+        if (information in self._information): return return_dict                   #Deny case: Information duplicate
+        self._information.append(information)                                       #Update information dict
+        is_accepted = self._isInfAccept()
+        if not is_accepted: return return_dict                                      #Deny case: Information denied
 
-                        ##Information is accepted##
+        return_dict["is_accepted"] = True                                           #Information is accepted
+        
+        #Is it reshared?
+        is_reshared = self._isInfReshared()
+        if is_reshared: return_dict["is_reshared"] = True                           #Information is to be reshared
 
-        if self._isInfReshared: return_dict["is_reshared"] = True                 #reshare info if it will be reshared
-
-        return
+        return (return_dict)
 
     #########################################################
 
