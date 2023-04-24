@@ -9,12 +9,6 @@ class Information:
         ID: ID
         origin: Position object that holds Where the Information originated from. position type
     '''
-    # how are we doing information in the base case? since there is only one kind
-    # of information right now, do we represent information as an integer value if
-    # an agent has more than one 'information'
-    # or do we have give a name to each piece of generated information and store
-    # them seperately?
-    #Constructor method
 
     information_generated = 0
     def __init__(self, origin: Position) -> None:

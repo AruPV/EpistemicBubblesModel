@@ -22,10 +22,10 @@ class Agent:
 
     global_agent_id = 0
 
-    def __init__(self, ID, location):
+    def __init__(self, ID, cell):
         self.global_agent_id <<- self.global_agent_id + 1
         self._ID = self.global_agent_id
-        self._location = location
+        self.cell = cell
         self._information = {}
         # things we can change later -- should add rates later
         self._prob_gen_inf = .05
@@ -35,7 +35,7 @@ class Agent:
 
     #########################################################
 
-    def _isInfGen(self, ) -> bool:
+    def isInfGen(self) -> Information | bool:
         ''' Check if information will be generated
         Returns:
             Bool, whether or not information is to be generated
@@ -44,6 +44,8 @@ class Agent:
         prob_roll = random()
         if self._prob_gen_inf > prob_roll:
             is_gen = True
+            new_inf = Information(origin = self.cell)
+            return new_inf
         return is_gen
     
     #########################################################
@@ -74,8 +76,8 @@ class Agent:
 
     #########################################################
 
-    def _move(self, location) -> None:
-        self._location = location
+    def _move(self, cell) -> None:
+        self.cell = cell
         return
     
     #########################################################
