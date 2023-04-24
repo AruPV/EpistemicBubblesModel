@@ -3,6 +3,7 @@ from typing import List
 from position import Position
 import random
 from information import Information
+from numpy import sign
 
 #### this is just printing the dictionary bc it is just not working for me
 def printDict(my_dictionary) -> str:
@@ -24,21 +25,23 @@ class Cell:
     #########################################################
     def moveOut(self, agent: agent.Agent) -> bool:
 
-        if self.contents.find(agent) == -1:
-            print(f"Failed to move agent out of cell: {agent._ID}. Agent not in cell.")
-            return False        #Couldn't Remove
+        try:
+            self.contents.remove(agent)
+        except ValueError:
+            print(f"Failed to move agent out of cell: {agent}. Agent not in cell.")
+            return False                                                            #Couldn't Remove
         
-        self.contents.remove(agent)
-        return True             #Removed Successfully
+        
+        return True                                                                 #Removed Successfully
     #########################################################
     def moveIn(self, agent: agent.Agent) -> bool:
 
-        if self.contents.find(agent) != -1:
+        if agent in self.contents:
             print(f"Failed to add agent: {agent._ID}. Agent already in cell")
-            return False        #Couldn't Add
+            return False                                                            #Couldn't Add
         
         self.contents.append(agent)
-        return True             #Added Successfully
+        return True                                                                 #Added Successfully
     #########################################################
     def __str__(self):
         ''' creates and returns a string representation of this cell
@@ -90,6 +93,11 @@ class Grid:
         print(self._agents)
     #########################################################
     def getCell(self, position: Position) -> Cell:
+        '''Get the cell at given position
+
+        Parameters:
+            position: Position object where the cell is
+        '''
         row = position.row
         col = position.col
         cell = self._grid[row][col]
@@ -106,7 +114,7 @@ class Grid:
 
     #########################################################
 
-    def _moveAgent(self, agent: agent.Agent, target_cell: Cell) -> bool:
+    def _moveByCell(self, agent: agent.Agent, target_cell: Cell) -> bool:
         '''Handles the logic of moving a single agent from one cell to another
 
         Parameters:
@@ -129,6 +137,57 @@ class Grid:
         agent.cell = target_cell                                    #Update cell in agent object
 
         return True
+    #########################################################
+
+    def _getMoveCell(self, moving_agent: agent.Agent, origin: Position) -> Cell:
+        '''Gets the cell to which agent must move considering the origin of the information
+
+        It is used to calculate the cell to which the agent is to move.
+        
+        Parameters:
+            agent: The agent that is moving
+            origin: the position from which the information originated
+
+        Returns:
+            A target cell
+        '''
+
+        start_position: Position = moving_agent.cell.position
+
+        #Find difference between the origin and the agent position
+        row_difference = origin.row - start_position.row
+        col_difference = origin.col - start_position.col
+
+        #Get new position from adding +1, 0, or -1 to start position in each field.
+        target_row = start_position.row + sign(row_difference)
+        target_col = start_position.col + sign(col_difference)
+        target_position = Position(row = target_row, col = target_col)
+
+        #Get the target cell from the target position
+        target_cell = self.getCell(target_position)
+
+        return target_cell
+    
+    #########################################################
+
+    def _moveAgent(self, moving_agent: agent.Agent, origin: Position, debugging = True):
+        ''' High level logic for movement
+
+        Moves agent given a origin of information.
+
+        Parameters:
+            agent: The agent that is moving
+            origin: the position from which the information originated
+        '''
+        if debugging: print(f"{moving_agent}, is attempting to move. The origin of information is {origin}")
+        #Get cell to be moved to
+        target_cell = self._getMoveCell(moving_agent, origin)
+
+        if debugging: print(f"Target cell will be {target_cell}")
+        #Move agent
+        self._moveByCell(moving_agent, target_cell)
+
+        return
 
     #########################################################
 
@@ -158,7 +217,6 @@ class Grid:
         for r in range(row_start, row_end):
             for c in range(col_start, col_end):
                 for a in self._grid[r][c].contents:
-                    print(a)
                     if a == origin_agent:     # don't add origin agent to the list
                         continue
                     agents.append(a)
@@ -171,7 +229,7 @@ class Grid:
         # also if we we're going to do this, might want to change it so that the
             # agent object itself can be directly inputted -- might be a challenge
             # with the way I have naming set up right now tho
-        ''' method to add an agent to a given cell in the grid -- NOTE: different
+        ''' method to add an agent to a given cell in the grid -- Note: different
         from move agent
         Parameters:
             the position on the grid where the agents should be added
@@ -191,7 +249,23 @@ class Grid:
     
     #########################################################
 
-    def _tryShare(self, target_agent: agent.Agent, information: Information):
+    def _share(self, agent, information, debugging = True):
+        '''Reshare information with neighbours of agent agent
+
+        Parameters:
+            agent: The agent sharing information will be attempted
+            information: The information which will be tried to shared with neighbors
+        '''
+        if debugging: print(f"{agent} is attempting to share information to:")
+        share_list = self.agentsInRange(agent)                                      #Get list of agents with whom info will be shared
+        for target_agent in share_list:
+            if debugging: print(f"attempted with: {target_agent}")
+            self._tryShare(target_agent, information, debugging = debugging)                               #Try to share it with them
+        return
+
+    #########################################################
+
+    def _tryShare(self, target_agent: agent.Agent, information: Information, debugging = True):
         '''
 
         First reshares, then moves. It calls the receiveInf method on the target agent, which
@@ -202,25 +276,31 @@ class Grid:
             target_agent: The agent on which sharing of information will be attempted
             information: The information which will be tried to share with the agent
         '''
-        target_agent.receiveInf(information = information)      #Share information with target agent
+        if debugging: print(f"Someone is attempting to share with {target_agent}")
+        share_results = target_agent.receiveInf(information = information)      #Share information with target agent
+        is_info_accepted = share_results["is_accepted"]
+        is_info_reshared = share_results["is_reshared"]
+        if debugging: print(f"It resulted in {share_results}")
 
-        self.move
+        if is_info_reshared: self._share(target_agent, information, debugging = debugging)             #Reshare if it will reshare
+        if is_info_accepted: self._moveAgent(target_agent, information.origin.position, debugging = debugging)                          #Move if it accepted
+
 
     #########################################################
 
-    def _oneTurn(self, origin_agent: agent.Agent):
+    def _oneTurn(self, origin_agent: agent.Agent, debugging = True):
         '''Runs a single "Turn" of a round (of a simulation)
 
-        
+        Paremeters:
+            origin_agent: The agent that attempts to make the information
         '''
 
-        info_generated = origin_agent.isInfGen()                #Generate info if it will be generated
-        if(info_generated == False): return                     #If information will not be generated, return
-        
-        #If it is generated, then:
-        share_list = self.agentsInRange(origin_agent)           #Get list of agents with whom info will be shared
-        for agent in share_list:
-            self._tryShare(agent)                               #Try to share it with them
+        info_generated = origin_agent.isInfGen()                                        #Generate info if it will be generated
+        if info_generated:
+            if debugging: print("Info generated, attempting to share")
+            self._share(origin_agent, info_generated, debugging = debugging)                    #If information will be generated, share
+
+        if debugging: print(f"{origin_agent} turn ended")
         return
     
     #########################################################

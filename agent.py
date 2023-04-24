@@ -28,7 +28,7 @@ class Agent:
         self.cell = cell
         self._information = []
         # things we can change later -- should add rates later
-        self._prob_gen_inf = .05
+        self._prob_gen_inf = .9
         self._prob_accept_inf = .4
         self._prob_reshare_inf = .3 
         self.spread_radius = 2
@@ -44,7 +44,7 @@ class Agent:
         prob_roll = random()
         if self._prob_gen_inf > prob_roll:
             is_gen = True
-            new_inf = Information(origin = self.cell)
+            new_inf = Information(origin_cell = self.cell)
             return new_inf
         return is_gen
     
@@ -70,7 +70,6 @@ class Agent:
         '''
         is_reshared = False
         prob_roll = random()
-        print(prob_roll)
         if self._prob_reshare_inf > prob_roll:
             is_reshared = True
         return is_reshared

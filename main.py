@@ -31,6 +31,40 @@ def main():
     test_position = Position(row = 2, col = 3)
     test_cell = g.getCell(test_position)
     print(test_cell)
+   
+    '''
+    print("###TESTING OUT GET MOVE CELL AND MOVEAGENT")
+
+    print("Starting Cell:")
+    print(test_cell)
+
+    print("Agent to be moved:")
+    moving_agent = test_cell.contents[0]
+    print(moving_agent)
+
+    print("Information Origin Position:")
+    origin = Position(row = 4, col = 1)
+    print(origin)
+
+    print("Getting Target Position")
+    target_cell = g._getMoveCell(moving_agent = moving_agent, origin = origin)
+    print(target_cell)
+
+    print("Attempting Move")
+    g._moveAgent(moving_agent, origin)
+
+    print("Starting Cell:")
+    print(test_cell)
+
+    print("Target Cell:")
+    print(target_cell)
+    '''
+
+    print("###TESTING OUT _oneTurn")
+    test_agent = g._agents[0]
+    test_information = Information(test_position)
+    g._oneTurn(test_agent, debugging = False)
+
 
 
 main()
