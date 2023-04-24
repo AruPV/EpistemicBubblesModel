@@ -52,7 +52,7 @@ class Cell:
                 print(a._ID)
                 contents += "Agent " + str(a._ID)
         return f"({self.position.row}, {self.position.col}): {contents} "
-
+    
 ################################################################################################################## 
 class Grid:
     ''' class representing a 2-D list of cell objects'''
@@ -71,7 +71,7 @@ class Grid:
         '''
         self._num_rows = rows
         self._num_cols = cols
-        self._agents = {}
+        self._agents = []
 
         # create a rows x cols 2D list of Cell objects
         self._grid: list[list[Cell]] = \
@@ -83,13 +83,17 @@ class Grid:
         for i in agents:
             #create agent with an id and store cell location inside of it
             # append that agent object to cell contents
-            name = len(self._agents) + 1
-            new_agent = agent.Agent(name, i._position)
-            i._contents.append(new_agent)
-            self._agents[name] = new_agent
+            new_agent = agent.Agent(i)
+            i.contents.append(new_agent)
+            self._agents.append(new_agent)
             print(i)
-        printDict(self._agents)
-
+        print(self._agents)
+    #########################################################
+    def getCell(self, position: Position) -> Cell:
+        row = position.row
+        col = position.col
+        cell = self._grid[row][col]
+        return cell
     #########################################################
 
     def __str__(self) -> None:
@@ -97,7 +101,7 @@ class Grid:
         (number? names) of agents inside '''
         maze_str = ""
         for row in self._grid:
-            maze_str += "|" + "|".join([str(len(cell._contents)) for cell in row]) + "|\n"
+            maze_str += "|" + "|".join([str(len(cell.contents)) for cell in row]) + "|\n"
         return maze_str[:-1]  # remove the final \n
 
     #########################################################
@@ -142,19 +146,19 @@ class Grid:
             # can change this later
         agents = []
         
-        origin_cell: Cell = origin_agent.cell
+        origin_cell: Cell = origin_agent.cell 
         spread_radius = origin_agent.spread_radius
 
         #Get integer values for the start and end of range
         row_start = max(0, origin_cell.position.row - spread_radius)
-        row_end = max(0, origin_cell.position.row + spread_radius)
+        row_end = min(10, origin_cell.position.row + spread_radius)
         col_start = max(0, origin_cell.position.col - spread_radius)
-        col_end = max(0, origin_cell.position.col + spread_radius)
-
+        col_end = min(10, origin_cell.position.col + spread_radius)
         # loop through all the cells and append all their agents to the list
         for r in range(row_start, row_end):
             for c in range(col_start, col_end):
-                for a in self._grid[r][c]._contents:
+                for a in self._grid[r][c].contents:
+                    print(a)
                     if a == origin_agent:     # don't add origin agent to the list
                         continue
                     agents.append(a)
@@ -174,9 +178,9 @@ class Grid:
         Returns:
             None
         '''
-        new_agent = agent.Agent(len(self._agents) + 1, position)
-        self._agents[len(self._agents) + 1] = new_agent
-        self._grid[position.row][position.col]._contents.append(new_agent)
+        new_agent = agent.Agent(position)
+        self._agents.append(new_agent)
+        self._grid[position.row][position.col].contents.append(new_agent)
 
     #########################################################   
 
@@ -248,10 +252,10 @@ class Grid:
         agents = []     # im going to store stuff as a tuple
         for c in g_copy:
             if c.isEmpty() == False:
-                for a in c._contents:
+                for a in c.contents:
                     if random.random() <= a._prob_gen_inf:
                         name = len(self._information) + 1
-                        info = Information(a._position, name)
+                        info = Information(a.position, name)
                         self._information[name] = info
                         a._information.append(info)
                         if random.random() <= a._prob_repeat_inf:   # share information

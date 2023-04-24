@@ -23,7 +23,7 @@ class Agent:
     global_agent_id = 0
 
     def __init__(self, cell):
-        self.global_agent_id <<- self.global_agent_id + 1
+        Agent.global_agent_id = Agent.global_agent_id + 1
         self._ID = self.global_agent_id
         self.cell = cell
         self._information = []
@@ -121,4 +121,4 @@ class Agent:
 
     def __str__(self) -> None:
         ''' creates str version of agent object '''
-        return f"Agent {str(self._ID)}, Location: ({self._location.row}, {self._location.col})"
+        return f"Agent {self._ID}, Position: ({self.cell.position.row}, {self.cell.position.col})"
