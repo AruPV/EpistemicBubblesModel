@@ -31,7 +31,7 @@ class Agent:
         self._prob_gen_inf = .05
         self._prob_accept_inf = .4
         self._prob_reshare_inf = .1 
-        self._spread_radius = 2
+        self.spread_radius = 2
 
     #########################################################
 

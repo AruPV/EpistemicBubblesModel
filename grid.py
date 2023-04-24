@@ -2,6 +2,7 @@ import agent
 from typing import List
 from position import Position
 import random
+from information import Information
 
 #### this is just printing the dictionary bc it is just not working for me
 def printDict(my_dictionary) -> str:
@@ -17,26 +18,26 @@ class Cell:
     '''
     #########################################################
     def __init__(self, row: int, col: int):
-        self._position:  Position = Position(row, col)
-        self._contents = []     # im representing an empty cell as an empty list
+        self.position:  Position = Position(row, col)
+        self.contents = []     # im representing an empty cell as an empty list
                                     # for now.
     #########################################################
     def moveOut(self, agent: agent.Agent) -> bool:
 
-        if self._contents.find(agent) == -1:
+        if self.contents.find(agent) == -1:
             print(f"Failed to move agent out of cell: {agent._ID}. Agent not in cell.")
             return False        #Couldn't Remove
         
-        self._contents.remove(agent)
+        self.contents.remove(agent)
         return True             #Removed Successfully
     #########################################################
     def moveIn(self, agent: agent.Agent) -> bool:
 
-        if self._contents.find(agent) != -1:
+        if self.contents.find(agent) != -1:
             print(f"Failed to add agent: {agent._ID}. Agent already in cell")
             return False        #Couldn't Add
         
-        self._contents.append(agent)
+        self.contents.append(agent)
         return True             #Added Successfully
     #########################################################
     def __str__(self):
@@ -44,13 +45,13 @@ class Cell:
         Returns:
             a string identifying the cell's row, col, and cell contents
         '''
-        if self._contents == []: contents = "EMPTY"
+        if self.contents == []: contents = "EMPTY"
         else:
             contents = ""
-            for a in self._contents:
+            for a in self.contents:
                 print(a._ID)
                 contents += "Agent " + str(a._ID)
-        return f"({self._position.row}, {self._position.col}): {contents} "
+        return f"({self.position.row}, {self.position.col}): {contents} "
 
 ################################################################################################################## 
 class Grid:
@@ -101,12 +102,12 @@ class Grid:
 
     #########################################################
 
-    def _moveAgent(self, agent: agent.Agent, target_position: Position) -> bool:
+    def _moveAgent(self, agent: agent.Agent, target_cell: Cell) -> bool:
         '''Handles the logic of moving a single agent from one cell to another
 
         Parameters:
             agent: The agent to be moved
-            target_position: The cell to which it should be moved
+            target_cell: The cell to which it should be moved
         Returns:
             Boolean regarding whether or not the move was successful.
 
@@ -127,11 +128,11 @@ class Grid:
 
     #########################################################
 
-    def agentsInRange(self, origin: agent.Agent) -> List:
+    def agentsInRange(self, origin_agent: agent.Agent) -> List:
         ''' method to return a list of all the agents in within the spread radius
         of the the inputted agent
         Parameters:
-            origin: the agent that is spreading new information
+            origin_agent: the agent that is spreading new information
         Returns:
             a list of all the agents within the spread radius
         '''
@@ -140,35 +141,23 @@ class Grid:
             # and a spread of 1 means cells 1 cell away (including diagonals)
             # can change this later
         agents = []
-        if origin._spread_radius == 0:
-            for a in self._grid[origin._position.row][origin._position.col]._contents:
-                if a != origin:
-                    agents.append(a)
-        else:
-            # row_start
-            if origin._position.row - origin._spread_radius < 0:                #When edge
-                row_start = 0
-            else: row_start = origin._position.row - origin._spread_radius
-            # row_end
-            if origin._position.row + origin._spread_radius > self._num_rows:   #When edge
-                row_end = self._num_rows
-            else: row_end = origin._position.row + origin._spread_radius + 1
-            # col_start
-            if origin._position.col - origin._spread_radius < 0:                #When edge
-                col_start = 0
-            else: col_start = origin._position.col - origin._spread_radius
-            # col_end
-            if origin._position.col + origin._spread_radius > self._num_cols:   #When edge
-                col_end = self._num_cols
-            else: col_end = origin._position.col + origin._spread_radius + 1
+        
+        origin_cell: Cell = origin_agent.cell
+        spread_radius = origin_agent.spread_radius
 
-            # loop through all the cells and append all their agents to the list
-            for r in range(row_start, row_end):
-                for c in range(col_start, col_end):
-                    for a in self._grid[r][c]._contents:
-                        if a == origin:     # don't add origin agent to the list
-                            continue
-                        agents.append(a)
+        #Get integer values for the start and end of range
+        row_start = max(0, origin_cell.position.row - spread_radius)
+        row_end = max(0, origin_cell.position.row + spread_radius)
+        col_start = max(0, origin_cell.position.col - spread_radius)
+        col_end = max(0, origin_cell.position.col + spread_radius)
+
+        # loop through all the cells and append all their agents to the list
+        for r in range(row_start, row_end):
+            for c in range(col_start, col_end):
+                for a in self._grid[r][c]._contents:
+                    if a == origin_agent:     # don't add origin agent to the list
+                        continue
+                    agents.append(a)
         return agents
 
     #########################################################
@@ -194,9 +183,6 @@ class Grid:
     def _findAgent(self, ID):
         ''' method to find agent in object in grid using ID number
         '''
-<<<<<<< Updated upstream
-        return self._agents[ID]
-=======
         return self._agents[ID]
     
     #########################################################
@@ -207,8 +193,7 @@ class Grid:
         First reshares, then moves
         '''
 
-        self._moveAgent
-        share_attempt
+        self.move
 
     #########################################################
 
@@ -298,4 +283,3 @@ class Grid:
                 # If they do
                 # Call b.ii again
             # Next
->>>>>>> Stashed changes
