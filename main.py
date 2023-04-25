@@ -74,7 +74,6 @@ py
 def main():
     random.seed(42)
     g = Grid(rows= 100, cols = 100)
-    '''
     g.toCSV(filename = "0_round.csv")
     g.run()
     g.toCSV(filename = "1_round.csv")
@@ -96,8 +95,9 @@ def main():
     g.toCSV(filename = "9_round.csv")
     g.run()
     g.toCSV(filename = "10_round.csv")
-    '''
-    g.run(num_rounds = 100)
+    g.run(num_rounds = 50)
+    g.toCSV(filename = "50_round.csv")
+    g.run(num_rounds = 50)
     g.toCSV(filename = "100_round.csv")
     g.run(num_rounds = 900)
     g.toCSV(filename = "1000_round.csv")
