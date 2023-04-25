@@ -5,11 +5,8 @@ from information import Information
 from position import Position
 from grid import Grid
 
-def main():
-
-    g = Grid()
-    print(g)
-
+def tests():
+    
 
     #agent30 = g._findAgent(30)
     #print(g._agentsInRange(agent30)[0])
@@ -49,7 +46,7 @@ def main():
     print("Getting Target Position")
     target_cell = g._getMoveCell(moving_agent = moving_agent, origin = origin)
     print(target_cell)
-
+py
     print("Attempting Move")
     g._moveAgent(moving_agent, origin)
 
@@ -58,12 +55,52 @@ def main():
 
     print("Target Cell:")
     print(target_cell)
-    '''
+    
 
     print("###TESTING OUT _oneTurn")
     test_agent = g._agents[0]
     test_information = Information(test_position)
     g._oneTurn(test_agent, debugging = False)
+
+    '''
+
+    print("###Testing out _oneRound")
+    print(g)
+    print("###")
+    g.runRounds(num_rounds = 3, debugging = False)
+    print(g)
+    return
+
+def main():
+    random.seed(42)
+    g = Grid(rows= 100, cols = 100)
+    '''
+    g.toCSV(filename = "0_round.csv")
+    g.run()
+    g.toCSV(filename = "1_round.csv")
+    g.run()
+    g.toCSV(filename = "2_round.csv")
+    g.run()
+    g.toCSV(filename = "3_round.csv")
+    g.run()
+    g.toCSV(filename = "4_round.csv")
+    g.run()
+    g.toCSV(filename = "5_round.csv")
+    g.run()
+    g.toCSV(filename = "6_round.csv")
+    g.run()
+    g.toCSV(filename = "7_round.csv")
+    g.run()
+    g.toCSV(filename = "8_round.csv")
+    g.run()
+    g.toCSV(filename = "9_round.csv")
+    g.run()
+    g.toCSV(filename = "10_round.csv")
+    '''
+    g.run(num_rounds = 100)
+    g.toCSV(filename = "100_round.csv")
+    g.run(num_rounds = 900)
+    g.toCSV(filename = "1000_round.csv")
 
 
 

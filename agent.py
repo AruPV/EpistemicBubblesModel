@@ -28,10 +28,10 @@ class Agent:
         self.cell = cell
         self._information = []
         # things we can change later -- should add rates later
-        self._prob_gen_inf = .9
-        self._prob_accept_inf = .4
-        self._prob_reshare_inf = .3 
-        self.spread_radius = 2
+        self._prob_gen_inf = .01
+        self._prob_accept_inf = .03
+        self._prob_reshare_inf = .05 
+        self.spread_radius = 4
 
     #########################################################
 

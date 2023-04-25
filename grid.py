@@ -4,6 +4,7 @@ from position import Position
 import random
 from information import Information
 from numpy import sign
+import csv
 
 #### this is just printing the dictionary bc it is just not working for me
 def printDict(my_dictionary) -> str:
@@ -63,8 +64,7 @@ class Grid:
     slots = ('_num_rows', '_num_cols', '_agents')
 
     #########################################################
-
-    def __init__(self, rows: int = 10, cols: int = 10, prop_agents: float = 0.3):
+    def __init__(self, rows: int = 10, cols: int = 10, prop_agents: float = 1):
         ''' initializer method for grid object
         Parameters:
             num_rows:       number of rows in the grid
@@ -89,8 +89,6 @@ class Grid:
             new_agent = agent.Agent(i)
             i.contents.append(new_agent)
             self._agents.append(new_agent)
-            print(i)
-        print(self._agents)
     #########################################################
     def getCell(self, position: Position) -> Cell:
         '''Get the cell at given position
@@ -103,7 +101,6 @@ class Grid:
         cell = self._grid[row][col]
         return cell
     #########################################################
-
     def __str__(self) -> None:
         ''' creates a str version of the grid that shows each cell and the
         (number? names) of agents inside '''
@@ -111,9 +108,7 @@ class Grid:
         for row in self._grid:
             maze_str += "|" + "|".join([str(len(cell.contents)) for cell in row]) + "|\n"
         return maze_str[:-1]  # remove the final \n
-
     #########################################################
-
     def _moveByCell(self, agent: agent.Agent, target_cell: Cell) -> bool:
         '''Handles the logic of moving a single agent from one cell to another
 
@@ -138,7 +133,6 @@ class Grid:
 
         return True
     #########################################################
-
     def _getMoveCell(self, moving_agent: agent.Agent, origin: Position) -> Cell:
         '''Gets the cell to which agent must move considering the origin of the information
 
@@ -167,9 +161,7 @@ class Grid:
         target_cell = self.getCell(target_position)
 
         return target_cell
-    
     #########################################################
-
     def _moveAgent(self, moving_agent: agent.Agent, origin: Position, debugging = True):
         ''' High level logic for movement
 
@@ -188,9 +180,7 @@ class Grid:
         self._moveByCell(moving_agent, target_cell)
 
         return
-
     #########################################################
-
     def agentsInRange(self, origin_agent: agent.Agent) -> List:
         ''' method to return a list of all the agents in within the spread radius
         of the the inputted agent
@@ -210,9 +200,9 @@ class Grid:
 
         #Get integer values for the start and end of range
         row_start = max(0, origin_cell.position.row - spread_radius)
-        row_end = min(10, origin_cell.position.row + spread_radius)
+        row_end = min(self._num_rows, origin_cell.position.row + spread_radius)
         col_start = max(0, origin_cell.position.col - spread_radius)
-        col_end = min(10, origin_cell.position.col + spread_radius)
+        col_end = min(self._num_cols, origin_cell.position.col + spread_radius)
         # loop through all the cells and append all their agents to the list
         for r in range(row_start, row_end):
             for c in range(col_start, col_end):
@@ -221,9 +211,7 @@ class Grid:
                         continue
                     agents.append(a)
         return agents
-
-    #########################################################
-    
+    #########################################################  
     def _addAgent(self, position: Position) -> None:
         # do we need this one? not sure
         # also if we we're going to do this, might want to change it so that the
@@ -239,16 +227,12 @@ class Grid:
         new_agent = agent.Agent(position)
         self._agents.append(new_agent)
         self._grid[position.row][position.col].contents.append(new_agent)
-
     #########################################################   
-
     def _findAgent(self, ID):
         ''' method to find agent in object in grid using ID number
         '''
-        return self._agents[ID]
-    
+        return self._agents[ID] 
     #########################################################
-
     def _share(self, agent, information, debugging = True):
         '''Reshare information with neighbours of agent agent
 
@@ -262,9 +246,7 @@ class Grid:
             if debugging: print(f"attempted with: {target_agent}")
             self._tryShare(target_agent, information, debugging = debugging)                               #Try to share it with them
         return
-
     #########################################################
-
     def _tryShare(self, target_agent: agent.Agent, information: Information, debugging = True):
         '''
 
@@ -284,10 +266,7 @@ class Grid:
 
         if is_info_reshared: self._share(target_agent, information, debugging = debugging)             #Reshare if it will reshare
         if is_info_accepted: self._moveAgent(target_agent, information.origin.position, debugging = debugging)                          #Move if it accepted
-
-
     #########################################################
-
     def _oneTurn(self, origin_agent: agent.Agent, debugging = True):
         '''Runs a single "Turn" of a round (of a simulation)
 
@@ -302,10 +281,8 @@ class Grid:
 
         if debugging: print(f"{origin_agent} turn ended")
         return
-    
     #########################################################
-
-    def _oneRound(self):
+    def _oneRound(self, debugging = False):
         '''Runs a single "round" of the simulation
 
         A round is divided in multiple different turns. This function
@@ -313,64 +290,40 @@ class Grid:
         in the random order generated
 
         '''
+        if debugging: print("In one round")
+        agents_left = self._agents.copy()
+
+        if debugging: print(len(agents_left))
+        while len(agents_left) != 0:
+
+            variate = random.random()
+            num_remaining = len(agents_left) - 1
+            next_index = round(variate * num_remaining)
+            next_agent = agents_left[next_index]
+            agents_left.remove(next_agent)
+            self._oneTurn(next_agent, debugging = debugging)
+        
         return
-
     #########################################################
+    def run(self, num_rounds = 1, debugging = False):
+        ''' Function to be called when the state of the simulation is to advance
 
-
-    def simulate(self, runs: int):
-        ''' function to simulate the the spread of information
-        runs: the number of times to cycle through the sim
-
-        each run starts with a chance for all agents in the grid to generate
-        information. then, for each of the agents that have generated new
-        information, each agent within the spread radius has a chance of accepting
-        the information
+        Parameters:
+            num_rounds: The amount of rounds to move forward
         '''
-        # Call grid to generate a “turn” list
-        g_copy = [cell for row in self._grid for cell in row]
-        agents = []     # im going to store stuff as a tuple
-        for c in g_copy:
-            if c.isEmpty() == False:
-                for a in c.contents:
-                    if random.random() <= a._prob_gen_inf:
-                        name = len(self._information) + 1
-                        info = Information(a.position, name)
-                        self._information[name] = info
-                        a._information.append(info)
-                        if random.random() <= a._prob_repeat_inf:   # share information
-                            agents.append([a, info])
-                            print(f"{a} shares the information")
-                        else:
-                            print(f"{a} doesn't share the information")
+        if debugging: print("In Run Rounds")
+        for i in range(0,num_rounds):
+            print(f"Running Round {i}")
+            self._oneRound(debugging = debugging)
+        return
+    #########################################################
+    def toCSV(self, filename, debugging = False):
+        with open(filename, 'w', newline='') as file:
+            writer = csv.writer(file)
 
-        # Agent action loop, for each agent in turn list
-        # Check if information will be generated (.1)
-        # If information is generated, then get list of agents in radius from grid
-        while len(agents) > 0:
-            print(f"Agents in radius of {agents[0][0]}:")
-            in_range = self._agentsInRange(agents[0][0])
-            info = agents[0][1]
-            agents.pop(0)
-            for r in in_range:
-                if info not in r._information:  # check if the agents has the info
-                    if random.random() <= r._prob_accept_inf:
-                        print(f"{r} accepts the information")
-                        r._information.append(info)
-                        if random.random() <= r._prob_repeat_inf:
-                            print("     decides to share")
-                            agents.append([r, info])
-                    else:
-                        print(f"{r} rejects the information")
-
-
-        # Call each agent in that list to see if they accept the information
-            # Check that the agent has not received this information already, if they did, then next.
-            # When agent receives information, add to their list of received information
-            # If not accepted, then return
-            # If accepted
-                # Move closer to idea origin
-                # If they don't spread it again, return (.1)
-                # If they do
-                # Call b.ii again
-            # Next
+            for row in self._grid:
+                pop_list = []
+                for cell in row:
+                    pop_list.append(len(cell.contents))
+                writer.writerow(pop_list)
+        return 
