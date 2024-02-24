@@ -1,2 +1,1 @@
-# FinalProject
-Project on Information Spread
+# Modeling Epistemic Bubbles using Celullar Automata
